@@ -1,4 +1,4 @@
-geopandasnumpy
+numpy
 xarray
 matplotlib
 OpenVisus
@@ -9,4 +9,3 @@ requests
 aiohttp
 jinja2
 geopandas
-geopandasnumpy
