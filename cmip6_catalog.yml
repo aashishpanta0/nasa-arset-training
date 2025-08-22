@@ -1,0 +1,79 @@
+plugins:
+  source:
+    - module: intake_nexgddp.catalog
+
+sources:
+  nex_gddp_models:
+    description: "Available models"
+    driver: intake_nexgddp.catalog.NexGDDPList
+    args:
+      kind: models
+
+  list_variables:
+    description: "Available variables"
+    driver: intake_nexgddp.catalog.NexGDDPList
+    args:
+      kind: variables
+
+  list_scenarios:
+    description: "Available scenarios"
+    driver: intake_nexgddp.catalog.NexGDDPList
+    args:
+      kind: scenarios
+
+  list_timeranges:
+    description: "Scenario time ranges"
+    driver: intake_nexgddp.catalog.NexGDDPList
+    args:
+      kind: scenarios
+  nex_gddp_cmip6:
+    description: "NEX-GDDP-CMIP6 reader"
+    driver: intake_nexgddp.catalog.NexGDDPCatalog
+
+    parameters:
+      model:
+        type: str
+        description: "Model name"
+      variable:
+        type: str
+        description: "Variable name"
+      scenario:
+        type: str
+        description: "Scenario name"
+      timestamp:
+        type: str
+        description: "Date YYYY-MM-DD"
+      quality:
+        type: int
+        default: 0
+        description: "Quality level"
+      cached:
+        type: bool
+        default: false
+        description: "Use cached=arco"
+      lat_min:
+        type: float
+        default: null
+        description: "Latitude min"
+      lat_max:
+        type: float
+        default: null
+        description: "Latitude max"
+      lon_min:
+        type: float
+        default: null
+        description: "Longitude min"
+      lon_max:
+        type: float
+        default: null
+        description: "Longitude max"
+
+    args:
+      model: "{{ model }}"
+      variable: "{{ variable }}"
+      scenario: "{{ scenario }}"
+      timestamp: "{{ timestamp }}"
+      quality: "{{ quality }}"
+      cached: "{{ cached }}"
+
+
