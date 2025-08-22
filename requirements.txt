@@ -1,0 +1,11 @@
+geopandasnumpy
+xarray
+matplotlib
+OpenVisus
+intake
+datetime
+intake-nexgddp
+requests
+aiohttp
+jinja2
+geopandas
