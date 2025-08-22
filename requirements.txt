@@ -9,3 +9,4 @@ requests
 aiohttp
 jinja2
 geopandas
+geopandasnumpy
