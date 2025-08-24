@@ -23,7 +23,7 @@ pip install openvisus
 
 ---
 
-## 🔧 Parameters
+## 🔧 Parameters 
 
 | Parameter     | Type   | Required | Description                                   |
 |---------------|--------|----------|-----------------------------------------------|
