@@ -70,3 +70,5 @@ xarray==2025.6.1
 yarl==1.20.1
 zope.interface==7.2
 ipykernel
+dask
+netcdf4
