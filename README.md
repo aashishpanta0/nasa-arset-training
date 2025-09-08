@@ -1,75 +1,84 @@
-# NASA ARSET Training Materials
 
-## NEX-GDDP-CMIP6 Intake Catalog using OpenVisus
+# NASA ARSET Training Repository
 
-This repository provides a custom [Intake](https://intake.readthedocs.io/) data source for loading and subsetting the NASA NEX-GDDP-CMIP6 dataset using [OpenVisus](https://github.com/sci-visus/OpenVisus). It allows easy access to daily downscaled climate projections with support for:
-
-- Custom `model`, `variable`, `scenario`, and `timestamp`
-- Downsampled resolutions via `quality`
-- Subsetting by latitude/longitude bounds (`lat_range`, `lon_range`)
-- Output in `xarray.DataArray` format
+[**Dashboard**](https://nasa-arset.nationalsciencedatafabric.org) | [**NSDF-ARSET**](https://nationalsciencedatafabric.org/nasa-arset) | [**Register for ARSET Training**](https://www.earthdata.nasa.gov/learn/trainings/assessing-extreme-weather-statistics-using-nasa-earth-exchange-global-daily)
 
 ---
 
-##  Installation
+## Overview
 
-Clone the repo and ensure the following dependencies are installed:
+This repository provides materials and code for NASA ARSET training on assessing extreme weather statistics using NASA Earth Exchange Global Daily Downscaled Projections (NEX-GDDP-CMIP6). It includes:
+
+- **Intake catalog** for NEX-GDDP-CMIP6 climate data
+- **ETCCDI indices** calculation scripts and notebooks
+- **Country-level analysis** using Natural Earth shapefiles
+- **Interactive Jupyter notebooks** for data exploration and visualization
+
+---
+
+
+## Repository Structure
+
+- `cmip6_catalog.yml` — Intake catalog for NEX-GDDP-CMIP6 data
+- `requirements.txt` — Python dependencies
+- `scripts/` — Python scripts and Jupyter notebooks:
+    - ETCCDI indices drivers and calculators (`ETCCDI_*`)
+    - Data download and streaming (`download_nex_gddp.py`, `Streaming_Via_Intake.ipynb`)
+    - Plotting and country stats (`Plot_NEX-GDDP.ipynb`, `ETCCDI_country_stats.ipynb`)
+    - Country boundaries (Natural Earth shapefiles)
+
+For a full description of each script and file, see [`details.md`](.env/docs/details.md).
+
+---
+
+## Installation
+
+Clone the repository and install dependencies:
 
 ```bash
-pip install intake xarray numpy
-# and OpenVisus if not already installed:
-pip install openvisus
+git clone https://github.com/aashishpanta0/nasa-arset-training.git
+cd nasa-arset-training
+pip install -r requirements.txt
 ```
 
 ---
 
-## 🔧 Parameters 
+## Usage
 
-| Parameter     | Type   | Required | Description                                   |
-|---------------|--------|----------|-----------------------------------------------|
-| `model`       | str    | ✅        | CMIP6 model name (e.g. `ACCESS-CM2`)          |
-| `variable`    | str    | ✅        | Variable name (e.g. `tas`, `pr`, `rhs`)       |
-| `scenario`    | str    | ✅        | Emissions scenario (e.g. `historical`, `ssp585`) |
-| `timestamp`   | str    | ✅        | Date in `YYYY-MM-DD` format                   |
-| `quality`     | int    | ❌        | Resolution level (`0`=full, `-1`=half, etc.) default=0  |
-| `lat_range`   | tuple  | ❌        | Latitude range `(min, max)` in degrees, default=entire region        |
-| `lon_range`   | tuple  | ❌        | Longitude range `(min, max)` in degrees, default= entire region       |
-
-
---- 
-
-## 🧪 Usage Example
+### Intake Catalog Example
 
 ```python
 import intake
-
 cat = intake.open_catalog("cmip6_catalog.yml")
-
 ds = cat.nex_gddp_cmip6(
-    model="CMCC-CM2-SR5",
-    variable="tas",
-    scenario="historical",
-    timestamp="2005-06-15",
-    quality=-2,
-    lat_range=(0, 40),
-    lon_range=(60, 120)
+        model="CMCC-CM2-SR5",
+        variable="tas",
+        scenario="historical",
+        timestamp="2005-06-15",
+        quality=0
 ).read()
-
 ds.plot()
 ```
 
----
-## 🚀 Launch on Binder
+### ETCCDI Indices & Country Analysis
+- Use the Jupyter notebooks in `scripts/` for step-by-step workflows on climate indices and country-level statistics.
+- Shapefiles for country boundaries are provided in `scripts/shapefile/` (source: [Natural Earth](https://www.naturalearthdata.com/downloads/110m-cultural-vectors/110m-admin-0-countries/)).
 
-Click the button below to launch this repository in an interactive Jupyter environment via [Binder](https://mybinder.org/):
+---
+
+## Data Sources
+
+- **NEX-GDDP-CMIP6**: Daily downscaled climate projections
+- **Natural Earth**: Country boundaries shapefiles
+
+---
+
+## Launch Interactive Environment
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/aashishpanta0/nasa-arset-training/binder)
 
-This will launch a temporary cloud environment where you can:
-- Browse the Intake catalog
-- Read and subset NEX-GDDP-CMIP6 climate data
-- Plot data interactively using Jupyter Notebooks
----
+Launch a cloud Jupyter environment to browse the catalog, analyze data, and plot interactively.
+
 ---
 
 ## 🙏 Acknowledgements
