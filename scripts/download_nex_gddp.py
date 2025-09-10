@@ -9,7 +9,7 @@ Quick start
 
 Optional CLI overrides (take precedence over the user parameters)
 -----------------------------------------------------------------
-python grab_nex_gddp_giss.py \
+python download_nex_gddp.py \
   --out ./nex_data \
   --scenarios historical ssp245 \
   --members r1i1p1f1 \
@@ -26,8 +26,10 @@ OUTPUT_DIR = "./"  # Where files will be saved; directory structure is preserved
 SCENARIOS  = ["historical", "ssp585"]  # subset as you like
 MEMBERS    = None  # e.g., ["r1i1p1f1"] or None for all available
 VARS       = ["pr", "tasmax", "tasmin"]  # variables to download
+#VARS      =  ["pr","tas","tasmax","tasmin",'hurs','huss','rlds','rsds','sfcWind'
 WORKERS    = 6  # parallel downloads
-MODEL      = "GISS-E2-1-G"  # keep as-is per your request; can be changed if needed
+MODEL      = "GISS-E2-1-G" 
+# 'ACCESS-CM2', 'ACCESS-ESM1-5', 'BCC-CSM2-MR', 'CESM2-WACCM', 'CESM2', 'CMCC-CM2-SR5', 'CMCC-ESM2', 'CNRM-CM6-1', 'CNRM-ESM2-1', 'CanESM5', 'EC-Earth3-Veg-LR', 'EC-Earth3', 'FGOALS-g3', 'GFDL-CM4', 'GFDL-CM4_gr2', 'GFDL-ESM4', 'GISS-E2-1-G', 'HadGEM3-GC31-LL', 'HadGEM3-GC31-MM', 'IITM-ESM', 'INM-CM4-8', 'INM-CM5-0', 'IPSL-CM6A-LR', 'KACE-1-0-G', 'KIOST-ESM', 'MIROC-ES2L', 'MIROC6', 'MPI-ESM1-2-HR', 'MPI-ESM1-2-LR', 'MRI-ESM2-0', 'NESM3', 'NorESM2-LM', 'NorESM2-MM', 'TaiESM1', 'UKESM1-0-LL'
 MD5_URL    = "https://nex-gddp-cmip6.s3-us-west-2.amazonaws.com/index_v2.0_md5.txt"
 # ================================ #
 #  END USER PARAMETERS             #
