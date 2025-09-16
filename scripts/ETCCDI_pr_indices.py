@@ -47,6 +47,7 @@ from __future__ import annotations
 
 __DISCLAIMER__ = "ALL INDICES PRODUCED BY THESE SCRIPTS/MODULES ARE EXPERIMENTAL. USERS MUST REVIEW THE CODE AND VALIDATE RESULTS AGAINST KNOWN REFERENCES BEFORE ANY OPERATIONAL OR DECISION SUPPORT USE. THERE MAY BE ERRORS."
 import numpy as np
+import numba as nb
 import pandas as pd
 import xarray as xr
 
@@ -223,32 +224,34 @@ def _apply_doy_threshold(da: xr.DataArray, thresh_doy: xr.DataArray, op: str = "
     raise ValueError(f"Unsupported op={op}")
 
 
+@nb.njit
+def _runlen_1d(x):
+    if x.size == 0:
+        return 0
+    maxlen = 0
+    cur = 0
+    for i in range(x.size):
+        if x[i] == 1:
+            cur += 1
+            if cur > maxlen:
+                maxlen = cur
+        else:
+            cur = 0
+    return maxlen
+
+
 def _max_run_length(mask: xr.DataArray) -> xr.DataArray:
     """
     Return, for each 1D array, the **maximum run length** of consecutive True values.
     """
-    def _runlen_1d(b):
-        if b.size == 0:
-            return np.array(0, dtype=np.int32)
-        x = b.astype(np.int8)
-        maxlen = 0
-        cur = 0
-        for i in range(x.size):
-            if x[i] == 1:
-                cur += 1
-                if cur > maxlen:
-                    maxlen = cur
-            else:
-                cur = 0
-        return np.array(maxlen, dtype=np.int32)
-
     return xr.apply_ufunc(
         _runlen_1d, mask,
         input_core_dims=[["time"]],
         output_core_dims=[[]],
         vectorize=True,
         dask="parallelized",
-        output_dtypes=[np.int32]
+        output_dtypes=[np.int32],
+        dask_gufunc_kwargs=dict(allow_rechunk=True)
     )
 
 # --------------------------------------------------------------------------------------
@@ -463,71 +466,3 @@ if "_finalize_index_like" not in globals():
         _out.attrs["units"] = _units
         return _out
 
-def _single_time_chunk(_da):
-    try:
-        if getattr(_da, "chunks", None):
-            return _da.chunk({"time": -1})
-    except Exception:
-        pass
-    return _da
-
-def _max_runlen_1d(x, want_wet, thr=1.0):
-    # x is 1D array; NaN breaks runs
-    if want_wet:
-        m = _np.where(_np.isnan(x), False, x >= thr)
-    else:
-        m = _np.where(_np.isnan(x), False, x < thr)
-    maxlen = run = 0
-    for v in m:
-        if v: run += 1
-        else:
-            if run > maxlen: maxlen = run
-            run = 0
-    if run > maxlen: maxlen = run
-    return _np.int16(maxlen)
-
-def _annual_max_run(pr, want_wet, thr):
-    pr = _single_time_chunk(pr)
-    return pr.resample(time="YS").map(
-        lambda x: _xr.apply_ufunc(
-            _max_runlen_1d, x,
-            input_core_dims=[["time"]], output_core_dims=[[]],
-            vectorize=True, dask="parallelized",
-            output_dtypes=[_np.int16],
-            dask_gufunc_kwargs={"allow_rechunk": True},
-            kwargs={"want_wet": want_wet, "thr": thr},
-        )
-    )
-
-def R95pTOT(pr, period="annual", base_period=("1961-01-01","1990-12-31"), wet_day=1.0):
-    base = pr.sel(time=slice(base_period[0], base_period[1]))
-    base = _single_time_chunk(base)
-    wet = base >= wet_day
-    thr95 = base.where(wet).quantile(0.95, dim="time", skipna=True)
-    exceed = pr.where(pr > thr95)
-    out = exceed.resample(time="YS").sum("time")
-    out.attrs["long_name"] = f"{period.capitalize()} total precip on days > p95 of baseline"
-    return _finalize_index_like(pr, out, "R95pTOT", "mm")
-
-def R99pTOT(pr, period="annual", base_period=("1961-01-01","1990-12-31"), wet_day=1.0):
-    base = pr.sel(time=slice(base_period[0], base_period[1]))
-    base = _single_time_chunk(base)
-    wet = base >= wet_day
-    thr99 = base.where(wet).quantile(0.99, dim="time", skipna=True)
-    exceed = pr.where(pr > thr99)
-    out = exceed.resample(time="YS").sum("time")
-    out.attrs["long_name"] = f"{period.capitalize()} total precip on days > p99 of baseline"
-    return _finalize_index_like(pr, out, "R99pTOT", "mm")
-
-def CDD(pr, period="annual", thr=1.0):
-    out = _annual_max_run(pr, want_wet=False, thr=thr).astype("float32")
-    out.attrs["long_name"] = f"{period.capitalize()} max consecutive dry days (RR < {thr} mm)"
-    out.attrs["units"] = "days"
-    return _finalize_index_like(pr, out, "CDD", "days")
-
-def CWD(pr, period="annual", thr=1.0):
-    out = _annual_max_run(pr, want_wet=True, thr=thr).astype("float32")
-    out.attrs["long_name"] = f"{period.capitalize()} max consecutive wet days (RR ≥ {thr} mm)"
-    out.attrs["units"] = "days"
-    return _finalize_index_like(pr, out, "CWD", "days")
-# ===== End overrides =====
