@@ -72,3 +72,4 @@ zope.interface==7.2
 ipykernel
 dask
 netcdf4
+cartopy
