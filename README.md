@@ -27,7 +27,6 @@ This repository provides materials and code for NASA ARSET training on assessing
     - Plotting and country stats (`Plot_NEX-GDDP.ipynb`, `ETCCDI_country_stats.ipynb`)
     - Country boundaries (Natural Earth shapefiles)
 
-For a full description of each script and file, see [`details.md`](.env/docs/details.md).
 
 ---
 
